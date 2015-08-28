@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" />
+<meta name="format-detection" content="telephone=no" />
+<title>Geocoding</title>
+<style>
+html, body, div, span, h1, h2, h3, h4, h5, h6, p, a, img, small, strong, ol, ul, li, form, label, table, tr, th, td {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  vertical-align: baseline;
+}
+:focus {
+  outline:none;
+}
+::-moz-focus-inner {
+  border: 0;
+}
+input[type='text'] {
+  box-sizing: border-box;  
+  margin: 0;
+  padding: 0;
+  -moz-box-sizing: border-box;
+  -webkit-appearance: none;
+  -webkit-box-sizing: border-box;
+}
+#map-canvas {
+  height: 100%;
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: 100%;
+}
+#form-container {
+  left: 10px;
+  position: absolute;
+  right: 10px;
+  top: 10px;
+}
+#form-container input[type='text'] {
+  border: 1px solid #CCCCCC;
+  font-size: 16px;
+  line-height: 50px;
+  padding: 5px;
+  width: 100%;
+}
+#centerMarker {
+  background: url(http://maps.gstatic.com/mapfiles/markers2/marker.png) no-repeat;
+  cursor: pointer;
+  left: 50%;
+  height: 34px;
+  margin-left: -10px;
+  margin-top: -34px;
+  position: absolute;
+  top: 50%;
+  width: 20px;
+  z-index: 1;
+}
+#centerWindow {
+  border: 6px solid rgba(0, 0, 0, .25);
+  box-shadow: 2px 5px 12px rgba(0, 0, 0, .25);
+  position: absolute;
+  height: 40px;
+  width: 190px;
+  top:50%;
+  left:50%;
+  margin-left:-100px;
+  margin-top:-100px;
+}
+#centerContainer {
+  background-color: #FFFFFE;
+  height: 100%;
+  width: 100%;
+}
+#centerContent {
+  padding: 10px;
+  text-align: center;
+}
+</style>
+<script src="http://maps.google.com/maps/api/js?sensor=false"></script>
+<script>
+  var geocoder;
+  var map;
+
+  function initialize() {
+    geocoder = new google.maps.Geocoder();
+    var latlng = new google.maps.LatLng(22.198745, 113.543873);
+    var mapOptions = {
+      zoom: 13,
+      center: latlng,
+      mapTypeId: google.maps.MapTypeId.ROADMAP,
+      disableDefaultUI: true
+    }
+    map = new google.maps.Map(document.getElementById("map-canvas"), mapOptions);
+    document.getElementById('centerMarker').style.display = 'block';
+    document.getElementById('centerContent').innerHTML = map.getCenter().toUrlValue(6);
+    google.maps.event.addListener(map, 'center_changed', function() {
+      document.getElementById('centerContent').innerHTML = map.getCenter().toUrlValue(6);
+    });
+    google.maps.event.addListener(map, 'dragstart', function() {
+      document.getElementById('centerWindow').style.display = 'none';
+    });
+    google.maps.event.addListener(map, 'dragend', function() {
+      document.getElementById('centerWindow').style.display = 'block';
+    });
+  }
+
+  function codeAddress(address) {
+    geocoder.geocode({'address': address}, function(results, status) {
+      if (status == google.maps.GeocoderStatus.OK) {
+        map.setCenter(results[0].geometry.location);
+        map.setZoom(20);
+      } else {
+        alert("Geocode was not successful for the following reason: " + status);
+      }
+    });
+  }
+</script>
+</head>
+<body onload="initialize();">
+<div id="map-canvas"></div>
+<div id="form-container">
+<form action="" onsubmit="codeAddress(this.elements['address'].value); return false;">
+<input type="text" name="address" value="" placeholder="ENTER ADDRESS" autocomplete="off" />
+</form>
+</div>
+<div id="centerMarker"></div>
+<div id="centerWindow">
+<div id="centerContainer">
+<div id="centerContent"></div>
+</div>
+</div>
+</body>
+</html>
